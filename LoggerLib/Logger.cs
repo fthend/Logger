@@ -1,21 +1,5 @@
 ﻿namespace LoggerLib
 {
-    public enum LogLevel
-    {
-        TRACE,
-        DEBUG,
-        INFO,
-        WARNING,
-        ERROR
-    }
-
-    public enum LogOutput
-    {
-        CONSOLE,
-        FILE,
-        BOTH
-    }
-
     public sealed class Logger
     {
         private static Logger instance = null;
