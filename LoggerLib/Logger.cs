@@ -1,7 +1,4 @@
-﻿using System;
-using System.IO;
-
-namespace LoggerLib
+﻿namespace LoggerLib
 {
     public enum LogLevel
     {
@@ -21,13 +18,29 @@ namespace LoggerLib
 
     public sealed class Logger
     {
+        private static Logger instance = null;
+        private static readonly object padlock = new object();
 
-        private string logFileName;
-        private LogLevel logLevel;
-        private LogOutput logOutput;
+        private string logFileName = $"log_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.log";
+        private LogLevel logLevel = LogLevel.INFO;
+        private LogOutput logOutput = LogOutput.CONSOLE;
+
         private Logger() { }
 
-
+        public static Logger Instance
+        {
+            get
+            {
+                lock (padlock)
+                {
+                    if (instance == null)
+                    {
+                        instance = new Logger();
+                    }
+                    return instance;
+                }
+            }
+        }
 
         public void SetLogLevel(LogLevel level)
         {
@@ -46,7 +59,23 @@ namespace LoggerLib
 
         public void Log(LogLevel level, string message)
         {
-            
+            if (level >= logLevel)
+            {
+                string logMessage = $"{DateTime.Now} | {level.ToString()} -> {message}";
+
+                if (logOutput == LogOutput.FILE || logOutput == LogOutput.BOTH)
+                {
+                    using (StreamWriter writer = File.AppendText(logFileName))
+                    {
+                        writer.WriteLine(logMessage);
+                    }
+                }
+
+                if (logOutput == LogOutput.CONSOLE || logOutput == LogOutput.BOTH)
+                {
+                    Console.WriteLine(logMessage);
+                }
+            }
         }
 
         public void LOGE(string message)
